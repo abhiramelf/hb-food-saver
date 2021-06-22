@@ -1,6 +1,8 @@
 const dishContainer = document.querySelector(".dish__container");
 const saveButton = document.getElementById("Save");
 
+const globalStore = [];
+
 const newCard = ({id, imageUrl, dishName, restaurantName, dishDescription}) => `
 <div class="col-md-6 col-lg-4" id=${id}>
 <div class="card">
@@ -22,6 +24,7 @@ const newCard = ({id, imageUrl, dishName, restaurantName, dishDescription}) => `
 
 saveButton.addEventListener("click", saveChanges);
 
+// Get the data from modal
 function saveChanges() {
     const dishData = {
         id: `${Date.now()}`, // time as a unique id for each dish
@@ -31,7 +34,29 @@ function saveChanges() {
         dishDescription: document.getElementById("dishdescription").value,
     };
 
+    // Create new card
     const createdCard = newCard(dishData);
 
     dishContainer.insertAdjacentHTML("beforeend", createdCard);
+    globalStore.push(dishData);
+
+    // Add to browser localstorage
+    localStorage.setItem("hungerBasket", JSON.stringify({ cards: globalStore }));
+}
+
+function loadDishes() {
+    //get the data from localstorage
+    const getDishes = localStorage.getItem("hungerBasket");
+
+    if (!getDishes) return;
+
+    // convert to object
+    const { cards } = JSON.parse(getDishes);
+
+    cards.map((cardObject) => {
+      const createdCard = newCard(cardObject);
+
+      dishContainer.insertAdjacentHTML("beforeend", createdCard);
+      globalStore.push(cardObject);
+    })
 }
